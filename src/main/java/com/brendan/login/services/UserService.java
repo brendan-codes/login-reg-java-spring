@@ -18,6 +18,10 @@ public class UserService {
 //		this.userRepo = ur;
 //	}
 	
+	public User findByEmail(String email) {
+		return userRepo.findByEmail(email);
+	}
+	
 	
 	public User register(User user) {
 		String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());

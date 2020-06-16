@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.brendan.login.models.User;
 import com.brendan.login.services.UserService;
@@ -23,7 +24,6 @@ public class MainController {
 		this.userValidator = uv;
 		this.userService = us;
 	}
-
 	
 	@GetMapping("/")
 	public String index(@ModelAttribute("userObject") User user) {
@@ -34,8 +34,6 @@ public class MainController {
 	public String registerUser(@Valid @ModelAttribute("userObject") User user, BindingResult result, HttpSession session) {
 		userValidator.validate(user, result);
 		if(result.hasErrors()) {
-			// error habdling
-			//
 			session.setAttribute("errors", result.getAllErrors());
 			return "redirect:/";
 		} else {
@@ -51,9 +49,15 @@ public class MainController {
 	}
 	
 	@PostMapping("/login")
-	public String loginUser() {
-		
-		return "redirect:/home";
+	public String loginUser(@RequestParam("email") String email, @RequestParam("password") String password, HttpSession session) {
+		if(userService.authenticateUser(email, password)) {
+			User thisUser = userService.findByEmail(email);
+			session.setAttribute("userid", thisUser.getId());
+			return "redirect:/home";
+		}else {
+			session.setAttribute("error", "Invalid login");
+			return "redirect:/";
+		}
 	}
 	
 	@GetMapping("/logout")
